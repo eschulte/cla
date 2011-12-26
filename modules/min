@@ -1,0 +1,5 @@
+#!/usr/bin/awk -f
+{
+    if((min=="") || ($1 < min)){ min=$1 }
+    print min
+}
