@@ -1,0 +1,36 @@
+#!/bin/sh
+#
+# Accepts data on STDIN, analyzes using the scripts in the modules/
+# directory, and prints results to STDOUT.
+#
+cla_tmp_dir="/tmp/cla"
+pipes=""
+
+## setup
+mkdir -p $cla_tmp_dir
+for module in modules/*;do
+    pipe="$cla_tmp_dir/$(basename $module)"
+    if [ "$pipes" = "" ];then
+        pipes=$pipe
+    else
+        pipes="$pipe:$pipes"
+    fi
+    rm -f $pipe.in $pipe.out
+    mkfifo $pipe.in $pipe.out
+    ./$module < $pipe.in > $pipe.out &
+done
+
+## processing
+for line in $(cat -);do
+    IFS=":"
+    for pipe in $(echo "$pipes");do echo "$line" >> "$pipe.in"; done
+    IFS="
+"
+done
+
+## cleanup
+IFS=":"
+for pipe in $(echo "$pipes");do
+    echo -e "$(basename $pipe)\t$(tail -1 $pipe.out)"
+done
+rm -rf $cla_tmp_dir
