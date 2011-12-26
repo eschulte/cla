@@ -1,0 +1,74 @@
+# -*- mode:org -*-
+#+Title: Command Line Analysis (CLA)
+#+Author: Eric Schulte
+
+An extensible tool suite for general analysis from the command line.
+
+This suite of tools enables exploratory data analysis from the command
+line.  The =cla= executable accepts data through =STDIN=, feeds that
+data to an easily extendable set of analytic modules, and outputs
+their results to =STDOUT=.  The goal of the =cla= system is to provide
+/no configuration required/ data analysis ranging from simple means
+and correlations to more sophisticated machine learning on the command
+line for exploratory data analysis.
+
+* Design Diagram
+:   Shell        CLA Frontend            Modules
+:  -------      --------------          ---------
+:                                      +----------+
+:                                  +-->|          |
+:             +----------------+   |   +----------+
+:             |  Dispatch to   |   |   +----------+
+:  STDIN ---->|    modules     |---+-->|          |
+:             +----------------+   |   +----------+
+:             +----------------+   |   +----------+
+:             |  Collect and   |<--+-->|          |
+: STDOUT <----| present output |   |   +----------+
+:             +----------------+   |   +----------+
+:                                  +-->|          |
+:                                      +----------+
+:                                           .
+:                                           .
+:                                           .
+
+* Notes and Tasks [0/3]
+** TODO module interaction
+The module interaction should be simple and done through Unix pipes.
+- data may be presented to modules STDIN
+- data may be collected from modules STDOUT
+
+How to collect incremental results?
+
+** TODO how best to print the data
+probably want to have two modes
+
+1. incremental output of the results to the terminal using a library
+   which is able to overwrite lines, thinking the format could allow
+   one vertical segment (normally one line wide) to each module in
+   which the incremental output is written. e.g.,
+   :     min: x.xx
+   :     max: x.xx
+   :    mean: x.xx
+   :   stdev: x.xx
+   : pearson: x.xx
+   :    poly: x + xX^x
+
+2. final output to be performed after all data has been processed to
+   print the final results of each module.  This will be simpler to
+   implement and shouldn't contain any control characters for simpler
+   parsing by subsequent command line tools.
+
+** Sine (example input data)
+#+name: sine
+#+begin_src sh
+  for x in `seq 400`;do echo "s($x/100)"|bc -l; done
+#+end_src
+
+** Outputting updated progress on the same line
+Using shell escape codes.
+#+begin_src sh
+  for i in `seq 20`;do
+      echo -n " $i\r"
+      sleep 1
+  done
+#+end_src
