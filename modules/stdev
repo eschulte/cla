@@ -1,0 +1,10 @@
+#!/usr/bin/awk -f
+{
+    sum=sum+$1
+    records[NR]=$1
+    # } END { <- to only print the final STDEV
+    mean=sum/NR
+    sum_of_squares=0
+    for(x=1;x<=NR;x++){ sum_of_squares+=((records[x]-mean)^2); }
+    print sqrt(sum_of_squares/NR)
+}
