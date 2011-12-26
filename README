@@ -37,7 +37,10 @@ The module interaction should be simple and done through Unix pipes.
 - data may be presented to modules STDIN
 - data may be collected from modules STDOUT
 
-How to collect incremental results?
+So far this is working using named pipes made with =mkfifo=.  The only
+problem with these pipes is that I'm not sure how to incrementally
+read from such a pipe without the read termination subsequently
+killing the writing process on the other end.
 
 ** TODO how best to print the data
 probably want to have two modes
