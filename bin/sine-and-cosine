@@ -1,0 +1,6 @@
+#!/bin/sh
+for x in `seq 400`;do
+    sine=$(echo "s($x/100)"|bc -l;)
+    cosine=$(echo "c($x/100)"|bc -l;)
+    echo "$sine $cosine"
+done
