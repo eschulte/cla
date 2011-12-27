@@ -1,4 +1,4 @@
-Command Line Analysis (CLA) --- !planning stages, not functional!
+Command Line Analysis (CLA)
 ===========================
 
 An extensible tool suite for general analysis from the command line.
