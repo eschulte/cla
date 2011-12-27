@@ -3,8 +3,31 @@
 # Accepts data on STDIN, analyzes using the scripts in the modules/
 # directory, and prints results to STDOUT.
 #
+
+## environment variables and arguments
 cla_tmp_dir="/tmp/cla"
+incremental=0
 pipes=""
+
+options(){
+    echo -e ""
+    echo -e "The following options may be specified."
+    echo -e "\t-i\tturn on incremental results"
+    echo -e "\t-m DIR\tspecify DIR as the cla module directory"
+    echo -e "\t-t DIR\tspecify DIR as the cla tmp directory"
+    echo -e ""
+    exit 0
+}
+
+while getopts :hit:m: option;do
+    case "$option" in
+        h) echo -e "Reads data from STDIN and writes analysis to STDOUT." && options ;;
+        i) incremental=1 ;;
+        t) cla_tmp_dir="$OPTARG" ;;
+        m) CLA_MODULE_DIR="$OPTARG" ;;
+        *) echo "invalid argument!" && options ;;
+    esac
+done
 
 if [ "$CLA_MODULE_DIR" = "" ];then
     echo "Must set the CLA_MODULE_DIR to your cla/modules directory."
@@ -12,6 +35,7 @@ if [ "$CLA_MODULE_DIR" = "" ];then
 fi
 
 ## setup
+# echo setup
 mkdir -p $cla_tmp_dir
 for module in $CLA_MODULE_DIR/*;do
     pipe="$cla_tmp_dir/$(basename $module)"
@@ -26,16 +50,26 @@ for module in $CLA_MODULE_DIR/*;do
 done
 
 ## processing
+# echo processing
 for line in $(cat -);do
     IFS=":"
-    for pipe in $(echo "$pipes");do echo "$line" >> "$pipe.in"; done
+    for pipe in $(echo "$pipes");do
+        echo "$line" >> "$pipe.in";
+        if [ $incremental -eq 1 ];then
+            echo -ne "$(basename $pipe):$(head -1 $pipe.out) "
+        fi
+    done
+    if [ $incremental -eq 1 ];then echo ""; fi
     IFS="
 "
 done
 
 ## cleanup
+# echo cleanup
 IFS=":"
 for pipe in $(echo "$pipes");do
-    echo -e "$(basename $pipe)\t$(tail -1 $pipe.out)"
+    if [ $incremental -eq 0 ];then
+        echo -e "$(basename $pipe)\t$(tail -1 $pipe.out)"
+    fi
 done
 rm -rf $cla_tmp_dir
