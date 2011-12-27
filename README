@@ -2,7 +2,7 @@
 #+Title: Command Line Analysis (CLA)
 #+Author: Eric Schulte
 
-An extensible tool suite for general analysis from the command line.
+An extendable tool suite for data analysis from the command line.
 
 This suite of tools enables exploratory data analysis from the command
 line.  The =cla= executable accepts data through =STDIN=, feeds that

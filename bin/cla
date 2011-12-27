@@ -1,7 +1,9 @@
 #!/bin/sh
 #
-# Accepts data on STDIN, analyzes using the scripts in the modules/
-# directory, and prints results to STDOUT.
+# An extendable tool suite for data analysis from the command line.
+#
+# Accepts data on STDIN, analyzes the data using the scripts in the
+# CLA_MODULE_DIR directory and prints the results to STDOUT.
 #
 
 ## environment variables and arguments
