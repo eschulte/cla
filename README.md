@@ -13,10 +13,10 @@ line for exploratory data analysis.
 
 ### Usage
 
-To use cla first define the `CLA_MODULE_DIR` environment variable to
-point to `modules/` in this directory.
+To use cla first define the `CLA_MDIR` environment variable to point
+to `modules/` in this directory.
 
-    export CLA_MODULE_DIR=/home/user/src/cla/modules
+    export CLA_MDIR=/home/user/src/cla/modules
 
 Add the `cla` executable in the `bin/` sub-directory of this
 repository to your path.  Use the `-h` option to see the available
@@ -26,9 +26,11 @@ command line flags.
     Reads data from STDIN and writes analysis to STDOUT.
 
     The following options may be specified.
-            -i      turn on incremental results
-            -m DIR  specify DIR as the cla module directory
-            -t DIR  specify DIR as the cla tmp directory
+            -h      print usage information
+            -i      toggle incremental results
+            -t TDIR specify TDIR as the cla tmp directory
+            -d MDIR specify MDIR as the cla module directory
+            -m MODS specify a comma seperated list of the modules to be used
 
 Then pipe data (for example from `bin/sine`) into `cla`.
 

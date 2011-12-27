@@ -1,77 +1,83 @@
 #!/bin/sh
 #
 # An extendable tool suite for data analysis from the command line.
-#
-# Accepts data on STDIN, analyzes the data using the scripts in the
-# CLA_MODULE_DIR directory and prints the results to STDOUT.
-#
 
 ## environment variables and arguments
-cla_tmp_dir="/tmp/cla"
-incremental=0
-pipes=""
+if [ -z $CLA_TDIR ];then CLA_TDIR="/tmp/cla"; fi
+if [ -z $CLA_MODS ];then CLA_MODS=""; fi
+if [ -z $CLA_INCR ];then CLA_INCR=0; fi
 
 options(){
     echo -e ""
     echo -e "The following options may be specified."
-    echo -e "\t-i\tturn on incremental results"
-    echo -e "\t-m DIR\tspecify DIR as the cla module directory"
-    echo -e "\t-t DIR\tspecify DIR as the cla tmp directory"
+    echo -e "\t-h\tprint usage information"
+    echo -e "\t-i\ttoggle incremental results"
+    echo -e "\t-t TDIR\tspecify TDIR as the cla tmp directory"
+    echo -e "\t-d MDIR\tspecify MDIR as the cla module directory"
+    echo -e "\t-m MODS\tspecify a comma seperated list of the modules to be used"
     echo -e ""
     exit 0
 }
 
-while getopts :hit:m: option;do
+while getopts :hit:d:m: option;do
     case "$option" in
         h) echo -e "Reads data from STDIN and writes analysis to STDOUT." && options ;;
-        i) incremental=1 ;;
-        t) cla_tmp_dir="$OPTARG" ;;
-        m) CLA_MODULE_DIR="$OPTARG" ;;
+        i) 
+            if [ $CLA_INCR -eq 0 ];then
+                CLA_INCR=1
+            else
+                CLA_INCR=0
+            fi ;;
+        t) CLA_TDIR="$OPTARG" ;;
+        d) CLA_MDIR="$OPTARG" ;;
+        m) CLA_MODS="$OPTARG" ;;
         *) echo "invalid argument!" && options ;;
     esac
 done
 
-if [ "$CLA_MODULE_DIR" = "" ];then
-    echo "Must set the CLA_MODULE_DIR to your cla/modules directory."
+if [ "$CLA_MDIR" = "" ];then
+    echo "The CLA_MDIR environment variable must point to your cla/modules directory."
     exit 1
 fi
 
+if [ "$CLA_MODS" = "" ];then
+    for module in $CLA_MDIR/*;do
+        if [ "$CLA_MODS" = "" ];then
+            CLA_MODS="$(basename $module)"
+        else
+            CLA_MODS="$(basename $module),$CLA_MODS"
+        fi
+    done
+fi
+
 ## setup
-# echo setup
-mkdir -p $cla_tmp_dir
-for module in $CLA_MODULE_DIR/*;do
-    pipe="$cla_tmp_dir/$(basename $module)"
-    if [ "$pipes" = "" ];then
-        pipes=$pipe
-    else
-        pipes="$pipe:$pipes"
-    fi
+mkdir -p $CLA_TDIR
+IFS=","
+for module in $CLA_MODS;do
+    pipe="$CLA_TDIR/$module"
     rm -f $pipe.in $pipe.out
     mkfifo $pipe.in $pipe.out
-    $module < $pipe.in > $pipe.out &
+    $CLA_MDIR/$module < $pipe.in > $pipe.out &
 done
 
 ## processing
-# echo processing
+IFS="
+"
 for line in $(cat -);do
-    IFS=":"
-    for pipe in $(echo "$pipes");do
-        echo "$line" >> "$pipe.in";
-        if [ $incremental -eq 1 ];then
-            echo -ne "$(basename $pipe):$(head -1 $pipe.out) "
+    IFS=","
+    for module in $CLA_MODS;do
+        echo "$line" >> "$CLA_TDIR/$module.in";
+        if [ $CLA_INCR -eq 1 ];then
+            echo -ne "$module:$(head -1 $CLA_TDIR/$module.out) "
         fi
     done
-    if [ $incremental -eq 1 ];then echo ""; fi
-    IFS="
-"
+    if [ $CLA_INCR -eq 1 ];then echo ""; fi
 done
 
 ## cleanup
-# echo cleanup
-IFS=":"
-for pipe in $(echo "$pipes");do
-    if [ $incremental -eq 0 ];then
-        echo -e "$(basename $pipe)\t$(tail -1 $pipe.out)"
+for module in $CLA_MODS;do
+    if [ $CLA_INCR -eq 0 ];then
+        echo -e "$module\t$(tail -1 $CLA_TDIR/$module.out)"
     fi
 done
-rm -rf $cla_tmp_dir
+rm -rf $CLA_TDIR
