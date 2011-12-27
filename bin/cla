@@ -35,6 +35,11 @@ while getopts :hit:d:m: option;do
     esac
 done
 
+if [ $CLA_INCR -eq 1 ];then
+    echo "incremental display of results is not currently implemented"
+    exit 1
+fi
+
 if [ "$CLA_MDIR" = "" ];then
     echo "The CLA_MDIR environment variable must point to your cla/modules directory."
     exit 1
