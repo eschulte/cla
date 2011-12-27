@@ -40,3 +40,8 @@ Then pipe data (for example from `bin/sine`) into `cla`.
     min     -.75680249530792825137
     mean    0.412461
     max     .99999968293183462021
+
+### License
+
+Licensed under the GPLV3, see the COPYING file in this directory for
+more information.
