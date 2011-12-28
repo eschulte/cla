@@ -1,2 +1,3 @@
 #!/bin/sh
-for x in `seq 400`;do echo "s($x/100)"|bc -l; done
+if [ -z $1 ];then times=100; else times=$1; fi
+for x in `seq $times`;do echo "s($x/100)"|bc -l; done
