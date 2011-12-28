@@ -1,0 +1,15 @@
+#!/bin/sh
+# Return the most popular words from a stream of text.
+# adapted from http://www.leancrew.com/all-this/2011/12/more-shell-less-egg/
+if [ -z $1 ];then many=10;else many=$1;fi
+cat - \
+    |tr -cs A-Za-z '\n' \
+    |tr A-Z a-z \
+    |sort \
+    |uniq -c \
+    |sort -rn \
+    |sed ${many}q \
+    |sed 's/^ *//' \
+    |sed 's/\([^ ]*\) \([^ ]*\)/\2:\1/' \
+    |tr '\n' ' ' \
+    |sed 's/ $/\n/'
