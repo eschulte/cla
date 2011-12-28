@@ -1,29 +1,53 @@
 #include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 #include <curses.h>
+#include <time.h>
+#include <errno.h>
+#define MAX_LINE_SIZE 1024
 
-int main(void) {
-
-  /* setup */
+int main(int argc, char *argv[]) {
+  /* ncurses setup */
   WINDOW * window = initscr();
   start_color();
   use_default_colors();
   init_pair(1, COLOR_CYAN,  -1);
   init_pair(2, COLOR_WHITE, -1);
 
-  /* draw */
-  int i, j;
-  for(j=0;j<20000;j++){
-    for(i=0;i<3;i++){
-      color_set(1, NULL);
-      mvaddstr(i, 0, "ncurses");
-      color_set(2, NULL);
-      mvprintw(i, 7, ": %d", (i+j));
-    }
-    refresh();
+  /* process input */
+  char buffer[MAX_LINE_SIZE];
+  FILE * files[argc];
+  int f_ind;
+  int fn_ln, max_fn_ln = 0;
+  for(f_ind=1;f_ind<argc;f_ind++){
+    files[f_ind] = fopen(argv[f_ind], "r");
+    fn_ln = strlen(argv[f_ind]);
+    if(fn_ln > max_fn_ln)
+      max_fn_ln = fn_ln;
   }
 
-  /* cleanup */
+  /* print the names of the input files */
+  color_set(1, NULL);
+  for(f_ind=1;f_ind<argc;f_ind++)
+    mvprintw((f_ind - 1), (max_fn_ln - strlen(argv[f_ind])), argv[f_ind]);
+  refresh();
+
+  /* draw */
+  struct timespec interval, remainder;
+  interval.tv_sec = 0;
+  interval.tv_nsec = (0.1 * 1e+9);
+  color_set(2, NULL);
+  while(1){
+    for(f_ind=1;f_ind<argc;f_ind++){
+      rewind(files[f_ind]);
+      if(fgets(buffer, MAX_LINE_SIZE, files[f_ind]) > 0)
+        mvprintw((f_ind - 1), max_fn_ln, ": %s", buffer);
+    }
+    refresh();
+    nanosleep(&interval, &remainder);
+  }
+
+  /* cleanup TODO: catch an interrupt */
   delwin(window);
   endwin();
   refresh();
