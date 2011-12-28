@@ -4,11 +4,28 @@
 #include <curses.h>
 #include <time.h>
 #include <errno.h>
+#include <signal.h>
 #define MAX_LINE_SIZE 1024
 
+WINDOW * window;
+
+void cleanup(){
+  delwin(window);
+  endwin();
+  refresh();
+}
+
+void leave(int sig){
+  fprintf(fopen("/tmp/diagnostic", "w"), "closing myself down\n");
+  cleanup();
+  exit(sig);
+}
+
 int main(int argc, char *argv[]) {
+  (void) signal(SIGINT,leave);
+
   /* ncurses setup */
-  WINDOW * window = initscr();
+  window = initscr();
   start_color();
   use_default_colors();
   init_pair(1, COLOR_CYAN,  -1);
@@ -21,6 +38,11 @@ int main(int argc, char *argv[]) {
   int fn_ln, max_fn_ln = 0;
   for(f_ind=1;f_ind<argc;f_ind++){
     files[f_ind] = fopen(argv[f_ind], "r");
+    if(files[f_ind] == NULL){
+      cleanup();
+      printf("failed to open %s\n", argv[f_ind]);
+      return EXIT_FAILURE;
+    }
     fn_ln = strlen(argv[f_ind]);
     if(fn_ln > max_fn_ln)
       max_fn_ln = fn_ln;
@@ -47,10 +69,6 @@ int main(int argc, char *argv[]) {
     nanosleep(&interval, &remainder);
   }
 
-  /* cleanup TODO: catch an interrupt */
-  delwin(window);
-  endwin();
-  refresh();
-
+  cleanup();
   return EXIT_SUCCESS;
 }
