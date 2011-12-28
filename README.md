@@ -1,6 +1,5 @@
 Command Line Analysis (CLA)
 ===========================
-
 An extendable tool suite for data analysis from the command line.
 
 This suite of tools enables exploratory data analysis from the command
@@ -13,12 +12,15 @@ machine learning.
 
 ### Usage
 
-To use cla first add both the `bin` and `modules` sub-directories of
-this directory to your path.  For example by placing the following in
-your `~/.bashrc`, `~/.zshrc` or `~/.profile`.
+##### Instillation
+First build the two small C helper functions by running `make` in this
+directory.  Then add both the `bin` and `modules` sub-directories to
+your path.  For example by placing the following in your `~/.bashrc`,
+`~/.zshrc` or `~/.profile` as appropriate.
 
-    export PATH="$PATH:/path/to/this/dir/bin:/path/to/this/dir/modules"
+    export PATH="$PATH:/path/to/cla/bin:/path/to/cla/modules"
 
+##### Command line usage
 Use the `-h` option to see the available command line flags.
 
     $ cla -h
@@ -30,17 +32,30 @@ Use the `-h` option to see the available command line flags.
             -t TDIR specify TDIR as the cla tmp directory
             -m MODS specify a comma seperated list of modules to use
 
-Then pipe data (for example from `bin/sine`) into `cla`.
+##### Check
+To check that everything is working properly pipe data (for example
+from `test/sine`) into `cla`.
 
-    $ alias sine="for x in \`seq 400\`;do echo \"s(\$x/100)\"|bc -l; done"
-    $ sine|cla -m min,max,mean,stdev
+    $ ./test/sine|cla -m min,max,mean,stdev
     sum     164.985
     stdev   0.518419
     min     -.75680249530792825137
     mean    0.412461
     max     .99999968293183462021
 
-### License
+### A word on Modules
+"Modules" are simply commands which accept data on `STDIN` and print
+results to `STDOUT`.  A module may print any number of lines of output
+over the course of an execution, each line will be considered to be an
+updated result and will replace all previous lines.
 
+This pipe-based design is intended to make the process of adding new
+modules as simple and language-agnostic as possible.  The real value
+of this tool suite and repository will be as a place in which to
+accumulate no-configuration analytic tools usable from the command
+line.  The value of cla will be directly proportional to the number
+and quality of included modules, so please contribute!
+
+### License
 Licensed under the GPLV3, see the COPYING file in this directory for
 more information.
