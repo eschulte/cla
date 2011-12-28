@@ -28,9 +28,11 @@ if [ "$CLA_MODS" = "" ];then echo "no mods specified, exiting"; exit 1; fi
 mkdir -p $CLA_TDIR
 IFS=","
 tee_str="tee"
+files=""
 for m in $CLA_MODS;do
     touch $CLA_TDIR/$m
     tee_str="$tee_str >($m|line-buffer $CLA_TDIR/$m)"
+    files="$files $CLA_TDIR/$m"
 done
 tee_str="$tee_str >/dev/null"
 
@@ -40,8 +42,7 @@ backend_pid=$!
 
 ## incremental printing
 if [ $CLA_INCR -eq 1 ];then
-    ncur_str="ncurses-frontend"
-    for m in $CLA_MODS;do ncur_str="$ncur_str $CLA_TDIR/$m"; done
+    ncur_str="ncurses-frontend $files"
     eval "$ncur_str" &
     frontend_pid=$!
     while ps -p $backend_pid 1>/dev/null;do sleep 0.1; done
@@ -50,6 +51,7 @@ fi
 
 ## final printing
 wait
+while lsof|grep -i $files;do sleep 0.1; done
 for m in $CLA_MODS;do echo -e "$m\t$(cat $CLA_TDIR/$m)"; done
 
 ## cleanup
