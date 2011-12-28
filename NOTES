@@ -31,8 +31,8 @@ line for exploratory data analysis.
 :                                           .
 :                                           .
 
-* Notes and Tasks [0/3]
-** TODO module interaction
+* Notes and Tasks [2/3]
+** DONE module interaction
 The module interaction should be simple and done through Unix pipes.
 - data may be presented to modules STDIN
 - data may be collected from modules STDOUT
@@ -75,7 +75,7 @@ Using shell escape codes.
       sleep 1
   done
 #+end_src
-** =tee= is almost enough by itself
+** DONE =tee= is almost enough by itself
 : ./sine|tee >(../modules/mean|./line-buffer /tmp/mean) >(../modules/sum|./line-buffer /tmp/sum) >/dev/null
 
 Using something like the above with =eval= should reduce the on-disk

@@ -33,12 +33,5 @@ int main(int argc, char *argv[]){
     last_length = current_length;
   }
 
-
-  // ensure that after all the output ends in a newline
-  if(argc > 1)
-    fprintf(fd, "\n");
-  else
-    puts("");
-
   return 0;
 }
