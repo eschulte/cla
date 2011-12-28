@@ -1,3 +1,4 @@
 *.html
 *.tex
 bin/line-buffer
+bin/ncurses-frontend
