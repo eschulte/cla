@@ -5,7 +5,7 @@ options(){
     echo -e "\t-h\tprint usage information"
     echo -e "\t-i\ttoggle incremental results"
     echo -e "\t-t TDIR\tspecify TDIR as the cla tmp directory"
-    echo -e "\t-m MODS\tspecify a comma seperated list of the modules to use\n"
+    echo -e "\t-m MODS\tspecify a comma seperated list of modules to use\n"
     exit 0
 }
 

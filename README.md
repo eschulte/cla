@@ -5,22 +5,21 @@ An extendable tool suite for data analysis from the command line.
 
 This suite of tools enables exploratory data analysis from the command
 line.  The `cla` executable accepts data through `STDIN`, feeds that
-data to an easily extendable set of analytic modules, and outputs
-their results to `STDOUT`.  The goal of the `cla` system is to provide
-*no configuration required* data analysis ranging from simple means
-and correlations to more sophisticated machine learning on the command
-line for exploratory data analysis.
+data to an easily extendable set of analytic modules (just shell
+scripts), and outputs their results to `STDOUT`.  The goal of the
+`cla` system is to provide *no configuration required* data analysis
+ranging from simple means and correlations to more sophisticated
+machine learning.
 
 ### Usage
 
-To use cla first define the `CLA_MDIR` environment variable to point
-to `modules/` in this directory.
+To use cla first add both the `bin` and `modules` sub-directories of
+this directory to your path.  For example by placing the following in
+your `~/.bashrc`, `~/.zshrc` or `~/.profile`.
 
-    export CLA_MDIR=/home/user/src/cla/modules
+    export PATH="$PATH:/path/to/this/dir/bin:/path/to/this/dir/modules"
 
-Add the `cla` executable in the `bin/` sub-directory of this
-repository to your path.  Use the `-h` option to see the available
-command line flags.
+Use the `-h` option to see the available command line flags.
 
     $ cla -h
     Reads data from STDIN and writes analysis to STDOUT.
@@ -29,12 +28,12 @@ command line flags.
             -h      print usage information
             -i      toggle incremental results
             -t TDIR specify TDIR as the cla tmp directory
-            -d MDIR specify MDIR as the cla module directory
-            -m MODS specify a comma seperated list of the modules to be used
+            -m MODS specify a comma seperated list of modules to use
 
 Then pipe data (for example from `bin/sine`) into `cla`.
 
-    $ ./bin/sine|cla 
+    $ alias sine="for x in \`seq 400\`;do echo \"s(\$x/100)\"|bc -l; done"
+    $ sine|cla -m min,max,mean,stdev
     sum     164.985
     stdev   0.518419
     min     -.75680249530792825137
