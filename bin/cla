@@ -30,6 +30,8 @@ IFS=","
 tee_str="tee"
 files=""
 for m in $CLA_MODS;do
+    which $m 1>/dev/null 2>/dev/null
+    if [ $? -eq 1 ];then echo "Module $m not found"; exit 1; fi
     touch $CLA_TDIR/$m
     tee_str="$tee_str >($m|line-buffer $CLA_TDIR/$m)"
     files="$files $CLA_TDIR/$m"
