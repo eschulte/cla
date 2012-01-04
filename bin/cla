@@ -29,12 +29,15 @@ mkdir -p $CLA_TDIR
 IFS=","
 tee_str="tee"
 files=""
+CLA_MOD_BASES=""
 for m in $CLA_MODS;do
-    which $m 1>/dev/null 2>/dev/null
-    if [ $? -eq 1 ];then echo "Module $m not found"; exit 1; fi
-    touch $CLA_TDIR/$m
-    tee_str="$tee_str >($m|line-buffer $CLA_TDIR/$m)"
-    files="$files $CLA_TDIR/$m"
+    m_base=$(echo $m|sed 's/^\([^ \t]*\).*$/\1/')
+    which $m_base 1>/dev/null 2>/dev/null
+    if [ $? -eq 1 ];then echo "Module $m_base not found"; exit 1; fi
+    touch $CLA_TDIR/$m_base
+    tee_str="$tee_str >($m|line-buffer $CLA_TDIR/$m_base)"
+    files="$files $CLA_TDIR/$m_base"
+    CLA_MOD_BASES="$CLA_MOD_BASES,$m_base"
 done
 tee_str="$tee_str >/dev/null"
 
@@ -54,7 +57,7 @@ fi
 ## final printing
 wait
 while lsof|grep -i $files;do sleep 0.1; done
-for m in $CLA_MODS;do echo -e "$m\t$(cat $CLA_TDIR/$m)"; done
+for m in $CLA_MOD_BASES;do echo -e "$m\t$(cat $CLA_TDIR/$m)"; done
 
 ## cleanup
 rm -rf $CLA_TDIR

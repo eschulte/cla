@@ -48,9 +48,16 @@ results to `STDOUT`.  A module may print any number of lines of output
 over the course of an execution, each line will be considered to be an
 updated result and will replace all previous lines.
 
-This pipe-based design is intended to make the process of adding new
-modules as simple and language-agnostic as possible.  The real value
-of this tool suite and repository will be as a place in which to
+It is possible to pass command-line arguments to modules through
+`cla`, for example the following uses the excellent
+[https://github.com/dkogan/feedgnuplot](feedgnuplot) package to graph
+the data as it is being processed.
+
+    $ ./test/sine 4000|cla -m mean,'feedgnuplot --stream',stdev
+
+The pipe-based module design is intended to make the process of adding
+new modules as simple and language-agnostic as possible.  The real
+value of this tool suite and repository will be as a place in which to
 accumulate no-configuration analytic tools usable from the command
 line.  The value of cla will be directly proportional to the number
 and quality of included modules, so please contribute!
