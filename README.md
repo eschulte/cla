@@ -50,7 +50,7 @@ updated result and will replace all previous lines.
 
 It is possible to pass command-line arguments to modules through
 `cla`, for example the following uses the excellent
-[https://github.com/dkogan/feedgnuplot](feedgnuplot) package to graph
+[feedgnuplot](https://github.com/dkogan/feedgnuplot) package to graph
 the data as it is being processed.
 
     $ ./test/sine 4000|cla -m mean,'feedgnuplot --stream',stdev
