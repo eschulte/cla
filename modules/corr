@@ -1,2 +1,20 @@
 #!/usr/bin/awk -f
-{sum=sum+$1}{print sum/NR}
+{
+    sum_a=sum_a+$1
+    records_a[NR]=$1
+    sum_b=sum_b+$2
+    records_b[NR]=$2
+    sum_prod=sum_prod+($1*$2)
+    # } END { <- to only print the final STDEV
+    # difference between mean of products and product of means
+    cov=((sum_prod/NR) - ((sum_a/NR) * (sum_b/NR)))
+    mean_a=sum_a/NR
+    mean_b=sum_b/NR
+    sum_of_squares_a=0
+    for(x=1;x<=NR;x++){ sum_of_squares_a+=((records_a[x]-mean_a)^2); }
+    sum_of_squares_b=0
+    for(x=1;x<=NR;x++){ sum_of_squares_b+=((records_b[x]-mean_b)^2); }
+    stdev_a=sqrt(sum_of_squares_a/NR)
+    stdev_b=sqrt(sum_of_squares_b/NR)
+    if((stdev_a*stdev_b) != 0) print (cov/(stdev_a*stdev_b))
+}
