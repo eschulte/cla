@@ -5,10 +5,10 @@ An extendable tool suite for data analysis from the command line.
 This suite of tools enables exploratory data analysis from the command
 line.  The `cla` executable accepts data through `STDIN`, feeds that
 data to an easily extendable set of analytic modules (just shell
-scripts), and outputs their results to `STDOUT`.  The goal of the
-`cla` system is to provide *no configuration required* data analysis
-ranging from simple means and correlations to more sophisticated
-machine learning.
+scripts), and outputs the modules results to `STDOUT`.  The goal of
+the `cla` system is to provide *no configuration required* data
+analysis ranging from simple means and correlations to more
+sophisticated machine learning.
 
 ### Usage
 
@@ -21,7 +21,7 @@ your path.  For example by placing the following in your `~/.bashrc`,
     export PATH="$PATH:/path/to/cla/bin:/path/to/cla/modules"
 
 ##### Command line usage
-Use the `-h` option to see the available command line flags.
+Use the `-h` option to see the usage information.
 
     $ cla -h
     Usage: cla [OPTION]... [MODULES]...
@@ -30,9 +30,14 @@ Use the `-h` option to see the available command line flags.
             -i      print incremental results
             -t TDIR specify TDIR as the cla tmp directory
 
+Data piped to `cla` will be passed through to any modules specified
+after `cla` on the command line.  The `-i` option will enable the
+display of incremental results during processing.  See below for
+example usage.
+
 ##### Check
 To check that everything is working properly pipe data (for example
-from `test/sine`) into `cla`.
+from the `./test/sine` script in this directory) into `cla`.
 
     $ ./test/sine|cla min max mean stdev
     min     .00999983333416666468
@@ -49,7 +54,7 @@ updated result and will replace all previous lines.
 It is possible to pass command-line arguments to modules through
 `cla`, for example the following uses the excellent
 [feedgnuplot](https://github.com/dkogan/feedgnuplot) package to graph
-the data as it is being processed.
+data as it is being processed.
 
     $ ./test/sine 4000|cla mean 'feedgnuplot --stream' stdev
 
