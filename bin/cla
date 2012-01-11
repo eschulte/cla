@@ -54,12 +54,14 @@ if [ $CLA_INCR -eq 1 ];then
     frontend_pid=$!
     while ps -p $backend_pid 1>/dev/null;do sleep 0.1; done
     ps -ef |grep "$!"|awk '{print $2}'|xargs kill -INT
+else
+    wait
 fi
 
 ## final printing
 debug "final printing"
-wait
-while lsof $files|grep -v "deleted";do sleep 0.1; done
+while lsof $files|grep -v "deleted" 1>/dev/null 2>/dev/null;do sleep 0.1; done
+debug "printing final results"
 for mod in $MODS;do echo -e "$mod\t$(cat $CLA_TDIR/$mod)"; done
 
 ## cleanup
