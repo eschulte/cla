@@ -1,4 +1,5 @@
 #!/usr/bin/awk -f
+# running maximum
 {
     for (i=1; i<=NF; i++)
     {
