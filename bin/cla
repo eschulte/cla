@@ -36,8 +36,16 @@ for m in $CLA_MODS;do
     if [ $? -eq 1 ];then echo "Module $m_base not found"; exit 1; fi
     touch $CLA_TDIR/$m_base
     tee_str="$tee_str >($m|line-buffer $CLA_TDIR/$m_base)"
-    files="$files $CLA_TDIR/$m_base"
-    CLA_MOD_BASES="$CLA_MOD_BASES,$m_base"
+    if [ -z "$files" ];then
+        files="$CLA_TDIR/$m_base";
+    else
+        files="$files $CLA_TDIR/$m_base";
+    fi
+    if [ -z "$CLA_MOD_BASES" ];then
+        CLA_MOD_BASES="$m_base";
+    else
+        CLA_MOD_BASES="$CLA_MOD_BASES,$m_base";
+    fi
 done
 tee_str="$tee_str >/dev/null"
 
