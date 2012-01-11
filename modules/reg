@@ -4,15 +4,12 @@
     sum_y=sum_y+$2
     sum_square_x=sum_square_x+($1*$1)
     sum_prod=sum_prod+($1*$2)
-    var_x = (sum_square_x/NR) - ((sum_x/NR) * (sum_x/NR))
-    cov = ((sum_prod/NR) - ((sum_x/NR) * (sum_y/NR)))
-    if(var_x == 0)
-        beta=0;
-    else
-        beta=(cov / var_x);
-    alpha = (sum_y/NR) - (beta * (sum_x/NR))
     # } END { <- to only print the final STDEV
     # difference between mean of products and product of means
+    var_x = (sum_square_x/NR) - ((sum_x/NR) * (sum_x/NR))
+    cov = ((sum_prod/NR) - ((sum_x/NR) * (sum_y/NR)))
+    if(var_x == 0) beta=0;else beta=(cov / var_x);
+    alpha = (sum_y/NR) - (beta * (sum_x/NR))
     if(alpha < 0)
         print "y = " beta "x - " (0 - alpha)
     else
