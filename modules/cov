@@ -1,8 +1,9 @@
 #!/usr/bin/awk -f
 {
-    sum_a=sum_a+$1
-    sum_b=sum_b+$2
-    sum_prod=sum_prod+($1*$2)
+    if(NF>1){ a=$1; b=$2 }else{ a=NR; b=$1 }
+    sum_a=sum_a+a
+    sum_b=sum_b+b
+    sum_prod=sum_prod+(a*b)
     # } END { <- to only print the final STDEV
     # difference between mean of products and product of means
     print ((sum_prod/NR) - ((sum_a/NR) * (sum_b/NR)))
