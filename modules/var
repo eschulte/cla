@@ -1,0 +1,6 @@
+#!/usr/bin/awk -f
+{
+    sum=sum+$1
+    sum_square=sum_square+($1*$1)
+    print ((sum_square/NR) - ((sum/NR) * (sum/NR)))
+}
