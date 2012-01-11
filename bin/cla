@@ -59,8 +59,8 @@ fi
 ## final printing
 debug "final printing"
 wait
-while lsof|grep -i $files;do sleep 0.1; done
-for m in $MODS;do echo -e "$m\t$(cat $CLA_TDIR/$m)"; done
+while lsof|grep -v "deleted"|grep -i $files;do sleep 0.1; done
+for mod in $MODS;do echo -e "$mod\t$(cat $CLA_TDIR/$mod)"; done
 
 ## cleanup
 debug "cleanup"
