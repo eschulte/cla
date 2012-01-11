@@ -1,4 +1,5 @@
 #!/usr/bin/awk -f
+# linear least-squares regression
 {
     if(NF>1){ a=$1; b=$2 }else{ a=NR; b=$1 }
     sum_x=sum_x+a
