@@ -1,4 +1,5 @@
 #!/usr/bin/awk -f
+# Pearson's correlation
 {
     if(NF>1){ a=$1; b=$2 }else{ a=NR; b=$1 }
     sum_a=sum_a+a
