@@ -1,8 +1,6 @@
 #!/bin/sh
-if [ "$(./test/sine |cla -m mean|awk '{print $2}')" = "0.463901" ];then
-    echo "passed"
-    exit 0
+if [ "$(./test/sine |cla mean|awk '{print $2}')" = "0.463901" ];then
+    echo "passed" && exit 0
 else
-    echo "failed"
-    exit 1
+    echo "failed" && exit 1
 fi
