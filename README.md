@@ -24,19 +24,17 @@ your path.  For example by placing the following in your `~/.bashrc`,
 Use the `-h` option to see the available command line flags.
 
     $ cla -h
-    Reads data from STDIN and writes analysis to STDOUT.
-
-    The following options may be specified.
-            -h      print usage information
-            -i      toggle incremental results
+    Usage: cla [OPTION]... [MODULES]...
+    Process data from STDIN with multiple modules.
+            -h      display this help
+            -i      print incremental results
             -t TDIR specify TDIR as the cla tmp directory
-            -m MODS specify a comma seperated list of modules to use
 
 ##### Check
 To check that everything is working properly pipe data (for example
 from `test/sine`) into `cla`.
 
-    $ ./test/sine|cla -m min,max,mean,stdev
+    $ ./test/sine|cla min max mean stdev
     min     .00999983333416666468
     max     .84147098480789650665
     mean    0.463901
@@ -53,7 +51,7 @@ It is possible to pass command-line arguments to modules through
 [feedgnuplot](https://github.com/dkogan/feedgnuplot) package to graph
 the data as it is being processed.
 
-    $ ./test/sine 4000|cla -m mean,'feedgnuplot --stream',stdev
+    $ ./test/sine 4000|cla mean 'feedgnuplot --stream' stdev
 
 The pipe-based module design is intended to make the process of adding
 new modules as simple and language-agnostic as possible.  The real

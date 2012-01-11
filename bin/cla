@@ -1,59 +1,53 @@
 #!/bin/bash
 # An extendable tool suite for data analysis from the command line.
+debug(){ if [ ! -z "$CLA_DEBUG" ];then echo "[$(date +%s.%N)] $1"; fi; }
 options(){
-    echo -e "\nThe following options may be specified."
-    echo -e "\t-h\tprint usage information"
-    echo -e "\t-i\ttoggle incremental results"
-    echo -e "\t-t TDIR\tspecify TDIR as the cla tmp directory"
-    echo -e "\t-m MODS\tspecify a comma seperated list of modules to use\n"
+    echo -e "Usage: cla [OPTION]... [MODULES]..."
+    echo -e "Process data from STDIN with multiple modules."
+    echo -e "\t-h\tdisplay this help"
+    echo -e "\t-i\tprint incremental results"
+    echo -e "\t-t TDIR\tspecify TDIR as the cla tmp directory\n"
     exit 0
 }
 
 ## environment variables and arguments
+debug "environment variables and arguments"
 if [ -z $CLA_TDIR ];then CLA_TDIR="/tmp/cla"; fi
-if [ -z $CLA_MODS ];then CLA_MODS=""; fi
 if [ -z $CLA_INCR ];then CLA_INCR=0; fi
-while getopts :hit:m: option;do
+while getopts :hit: option;do
     case "$option" in
-        h) echo "Process data from STDIN with multiple modules." && options ;;
+        h) options ;;
         i) if [ $CLA_INCR -eq 0 ];then CLA_INCR=1; else CLA_INCR=0; fi ;;
         t) CLA_TDIR="$OPTARG" ;;
-        m) CLA_MODS="$OPTARG" ;;
         *) echo "invalid argument!" && options ;;
     esac
 done
-if [ "$CLA_MODS" = "" ];then echo "no mods specified, exiting"; exit 1; fi
+shift $(($OPTIND - 1))
 
 ## setup temp directory, and build tee command string
+debug "setup temp directory, and build tee command string"
 mkdir -p $CLA_TDIR
-IFS=","
 tee_str="tee"
-files=""
-CLA_MOD_BASES=""
-for m in $CLA_MODS;do
-    m_base=$(echo $m|sed 's/^\([^ \t]*\).*$/\1/')
-    which $m_base 1>/dev/null 2>/dev/null
-    if [ $? -eq 1 ];then echo "Module $m_base not found"; exit 1; fi
-    touch $CLA_TDIR/$m_base
-    tee_str="$tee_str >($m|line-buffer $CLA_TDIR/$m_base)"
-    if [ -z "$files" ];then
-        files="$CLA_TDIR/$m_base";
-    else
-        files="$files $CLA_TDIR/$m_base";
-    fi
-    if [ -z "$CLA_MOD_BASES" ];then
-        CLA_MOD_BASES="$m_base";
-    else
-        CLA_MOD_BASES="$CLA_MOD_BASES,$m_base";
-    fi
+while [ $# -gt 0 ];do
+    mod=$(basename $(echo "$1"|sed 's/^\([^ \t]*\).*$/\1/'))
+    which $mod 1>/dev/null 2>/dev/null
+    if [ $? -eq 1 ];then echo "Module $mod not found"; exit 1; fi
+    touch $CLA_TDIR/$mod
+    tee_str="$tee_str >($1|line-buffer $CLA_TDIR/$mod)"
+    if [ -z "$files" ];then files="$CLA_TDIR/$mod";else files="$files $CLA_TDIR/$mod";fi
+    if [ -z "$MODS" ];then MODS="$mod";else MODS="$MODS $mod";fi
+    shift
 done
+if [ "$MODS" = "" ];then echo "no mods specified, exiting"; exit 1; fi
 tee_str="$tee_str >/dev/null"
 
 ## run
+debug "run"
 cat -|bash -c "$tee_str" &
 backend_pid=$!
 
 ## incremental printing
+debug "incremental printing"
 if [ $CLA_INCR -eq 1 ];then
     ncur_str="ncurses-frontend $files"
     eval "$ncur_str" &
@@ -63,9 +57,11 @@ if [ $CLA_INCR -eq 1 ];then
 fi
 
 ## final printing
+debug "final printing"
 wait
 while lsof|grep -i $files;do sleep 0.1; done
-for m in $CLA_MOD_BASES;do echo -e "$m\t$(cat $CLA_TDIR/$m)"; done
+for m in $MODS;do echo -e "$m\t$(cat $CLA_TDIR/$m)"; done
 
 ## cleanup
+debug "cleanup"
 rm -rf $CLA_TDIR
