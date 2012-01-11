@@ -1,4 +1,5 @@
 #!/usr/bin/awk -f
+# variance
 {
     for (i=1; i<=NF; i++)
     {
