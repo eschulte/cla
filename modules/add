@@ -1,4 +1,5 @@
 #!/usr/bin/awk -f
+# running sum
 {
     for (i=1; i<=NF; i++)
     {
