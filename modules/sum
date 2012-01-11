@@ -1,2 +1,0 @@
-#!/usr/bin/awk -f
-{sum=sum+$1}{print sum}

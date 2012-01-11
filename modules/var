@@ -1,6 +1,11 @@
 #!/usr/bin/awk -f
 {
-    sum=sum+$1
-    sum_square=sum_square+($1*$1)
-    print ((sum_square/NR) - ((sum/NR) * (sum/NR)))
+    for (i=1; i<=NF; i++)
+    {
+        sum[i] += $i;
+        sum_square[i]=sum_square[i]+($i*$i)
+        var[i] = ((sum_square[i]/NR) - ((sum[i]/NR) * (sum[i]/NR)))
+        if(i == 1){ line = var[i] }else{ line = line " " var[i]}
+    }
+    print line
 }

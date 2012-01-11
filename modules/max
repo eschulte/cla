@@ -1,5 +1,9 @@
 #!/usr/bin/awk -f
 {
-    if((max=="") || ($1 > max)){ max=$1 }
-    print max
+    for (i=1; i<=NF; i++)
+    {
+        if((max[i] == "") || ($i > max[i])){ max[i] = $i}
+        if(i == 1){ line = max[i] }else{ line = line " " max[i]}
+    }
+    print line
 }
