@@ -1,0 +1,14 @@
+#!/usr/bin/gawk -f
+{
+    for (i=1; i<=NF; i++)
+    {
+        all[i][NR]=$i;
+        asort(all[i]);
+        if(NR % 2)
+            median=all[i][(NR+1)/2]
+        else
+            median=(all[i][NR/2] + all[i][(NR/2)+1])/2
+        if(i == 1){ line = median }else{ line = line " " median}
+    }
+    print line
+}
