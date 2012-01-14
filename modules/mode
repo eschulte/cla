@@ -1,0 +1,17 @@
+#!/usr/bin/awk -f
+{
+    for (i=1; i<=NF; i++)
+    {
+        frequencies[i][$i]++;
+        most=0;
+        for (f in frequencies[i]) {
+            if (frequencies[i][f] > most)
+            {
+                most=frequencies[i][f];
+                mode[i]=f;
+            }
+        }
+        if(i == 1){ line = mode[i] }else{ line = line " " mode[i] }
+    }
+    print line
+}
