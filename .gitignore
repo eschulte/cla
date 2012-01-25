@@ -2,3 +2,4 @@
 *.tex
 bin/line-buffer
 bin/ncurses-frontend
+data
