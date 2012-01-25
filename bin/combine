@@ -1,0 +1,12 @@
+#!/bin/sh
+#
+# combine two files line-by-line (not efficient):
+#   $1   file1
+#   $2   file2
+#   $3   (optional) field seperator to use when combining lines
+#   
+if [ -z "$3" ];then FS=" "; else FS="$3"; fi
+for i in $(seq $(wc -l $1|awk '{print $1}'));do
+    cat $1|head -n $i|tail -1|tr '\n' "$FS"
+    cat $2|head -n $i|tail -1
+done
