@@ -1,0 +1,56 @@
+#!/usr/bin/gawk -f
+#
+# Decision tree learner
+# - discrete data
+# - arbitrary number of features
+# - identify y feature with command line argument (defaults to last)
+function print_array(array){
+    for(i in array) printf "%s:%s ", i, array[i]; printf "\n" }
+
+# return a scalar metric of the difference in two distributions
+function abs(x){ if(x < 0) return (0 - x); else return x;}
+function difference_in_distributions(as, bs){
+    difference=0;
+    for(k in as) difference += abs(as[k] - bs[k]);
+    return (difference / length(as)) }
+
+# return the most common element of as
+function majority(as){
+    for (g in as) groups[as[g]]=0; for (g in as) groups[as[g]]++;
+    maj=0; count=0;
+    for (g in groups){ if(groups[g] > count){ maj=g; count=groups[g]; } }
+    return maj; }
+
+# return the column in xs with the most different distribution from that in ys
+function best_attribute(xs, ys){
+    for (g in ys) y_groups[ys[g]]=0; for (g in ys) y_groups[ys[g]]++;
+    diff=0; col=0
+    for(i=1; i<=length(xs); i++){
+        for (g in xs[i]) groups[xs[i][g]]=0;
+        for (g in xs[i]) groups[xs[i][g]]++;
+        my_diff = difference_in_distributions(groups, y_groups);
+        if(my_diff > diff){ diff=my_diff; col=i; } }
+    return col }
+
+function is_leaf(xs, ys){
+    if(! xs) return 0;
+    for (g in ys) y_groups[ys[g]]=0;
+    if(length(y_groups == 1)) return 0; else return 1; }
+
+function build_decision_tree(xs, ys){
+    if(is_leaf(xs, ys)) return majority(xs);
+}
+
+{ # collect all data into xs and ys
+    for (i=1; i<=NF; i++){
+        if(i == NF){
+            ys[NR]=$i;
+            y_groups[$i]++;
+        } else {
+            xs[i][NR]=$i; } } }
+
+END { # build and report a decision tree
+    OFS="\t"
+    print length(ys), "total samples"
+    print length(xs), "total attributes"
+    print best_attribute(xs, ys), "most discriminating attribute"}
