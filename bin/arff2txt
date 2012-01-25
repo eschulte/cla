@@ -1,0 +1,3 @@
+#!/bin/sh
+# convert arff files to tab seperated data
+cat -|sed -e '1,/@data/ d; s/,/ /g'
