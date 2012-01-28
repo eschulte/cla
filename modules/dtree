@@ -1,56 +1,50 @@
-#!/usr/bin/gawk -f
-#
-# Decision tree learner
-# - discrete data
-# - arbitrary number of features
-# - identify y feature with command line argument (defaults to last)
-function print_array(array){
-    for(i in array) printf "%s:%s ", i, array[i]; printf "\n" }
+#!/usr/local/bin/guile \
+--no-auto-compile -s
+!#
+(use-modules (ice-9 rdelim)
+             (ice-9 format)
+             (srfi srfi-1))
 
-# return a scalar metric of the difference in two distributions
-function abs(x){ if(x < 0) return (0 - x); else return x;}
-function difference_in_distributions(as, bs){
-    difference=0;
-    for(k in as) difference += abs(as[k] - bs[k]);
-    return (difference / length(as)) }
+(define (reduce fn l)
+  (if (null? l) '() (fn (car l) (reduce fn (cdr l)))))
 
-# return the most common element of as
-function majority(as){
-    for (g in as) groups[as[g]]=0; for (g in as) groups[as[g]]++;
-    maj=0; count=0;
-    for (g in groups){ if(groups[g] > count){ maj=g; count=groups[g]; } }
-    return maj; }
+(define (counts lst)
+  (reduce (lambda (el acc)
+            (let ((prev (assoc el acc)))
+              (if prev
+                  (assoc-set! acc el (+ 1 (cdr prev)))
+                  (cons (cons el 1) acc))))
+          lst))
 
-# return the column in xs with the most different distribution from that in ys
-function best_attribute(xs, ys){
-    for (g in ys) y_groups[ys[g]]=0; for (g in ys) y_groups[ys[g]]++;
-    diff=0; col=0
-    for(i=1; i<=length(xs); i++){
-        for (g in xs[i]) groups[xs[i][g]]=0;
-        for (g in xs[i]) groups[xs[i][g]]++;
-        my_diff = difference_in_distributions(groups, y_groups);
-        if(my_diff > diff){ diff=my_diff; col=i; } }
-    return col }
+(define (majority lst)
+  (caar (sort (counts lst) (lambda (a b) (> (cdr a) (cdr b))))))
 
-function is_leaf(xs, ys){
-    if(! xs) return 0;
-    for (g in ys) y_groups[ys[g]]=0;
-    if(length(y_groups == 1)) return 0; else return 1; }
+(define (best-attribute xs ys)
+  '())
 
-function build_decision_tree(xs, ys){
-    if(is_leaf(xs, ys)) return majority(xs);
-}
+(define (leaf-node? ys)
+  '())
 
-{ # collect all data into xs and ys
-    for (i=1; i<=NF; i++){
-        if(i == NF){
-            ys[NR]=$i;
-            y_groups[$i]++;
-        } else {
-            xs[i][NR]=$i; } } }
+(define (build-leaf-node ys)
+  '())
 
-END { # build and report a decision tree
-    OFS="\t"
-    print length(ys), "total samples"
-    print length(xs), "total attributes"
-    print best_attribute(xs, ys), "most discriminating attribute"}
+(define (build-decision-node xs ys)
+  (let ((a (best-attribute xs ys)))
+    `(case ,a
+       ,@(map (lambda (pair)
+                (list a (apply build-decision-tree pair)))
+              (split-by-attribute xs ys)))))
+
+(define (build-decision-tree xs ys)
+  (if (leaf-node? ys)
+      (build-leaf-node ys)
+      (build-decision-node xs ys)))
+
+;; parse incoming data
+(define *data* (read))
+(define *xs* (map (lambda (line) (reverse (cdr (reverse line)))) *data*))
+(define *ys* (map last-pair *data*))
+
+(format #t "~d attributes in ~a~%" (length (car *xs*)) (car *xs*))
+
+
