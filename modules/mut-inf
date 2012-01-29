@@ -1,0 +1,42 @@
+#!/usr/local/bin/guile -s
+!#
+;; Return the mutual information between two discrete variables
+;; 
+;; Optionally pass as an argument the column number against which all
+;; others should be compared.
+;;
+;; NOTE: I haven't verified that this actually works
+(use-modules (ice-9 rdelim) (ice-9 format) (srfi srfi-1))
+(define-syntax c (syntax-rules () ((c f args ...) (lambda x (apply f args ... x)))))
+(define (all-but n l) (append (take l n) (drop l (+ n 1))))
+(define (transpose ls) (apply map list ls))
+(define reduce (lambda* (fn l #:optional (i '()))
+                   (if (null? l) i (fn (car l) (reduce fn (cdr l) i)))))
+(define (cross as bs)
+  "Return the Cartesian product of as and bs."
+  (apply append (map (lambda (a) (map (c cons a) bs)) as)))
+
+(define (mutual-information xs ys)
+  "Return the mutual information between corresponding observations xs and ys."
+  (let* ((both (map cons xs ys))
+         (total (length xs))
+         (perc (lambda (observations) (/ (length observations) total))))
+    (reduce (lambda (pair acc)
+              (let* ((x (car pair))
+                     (y (cdr pair))
+                     (px (perc (filter (c equal? x) xs)))
+                     (py (perc (filter (c equal? y) ys)))
+                     (pxy (perc (filter (lambda (pair) (and (equal? x (car pair))
+                                                       (equal? y (cdr pair))))
+                                        both))))
+                (- acc (if (> pxy 0) (* pxy (log (/ (* px py) pxy))) 0))))
+            (cross (delete-duplicates xs) (delete-duplicates ys)) 0)))
+
+(let* ((data (read))
+       (y-ind (if (> (length (command-line)) 1)
+                  (eval-string (cadr (command-line)))
+                  (- (length (car data)) 1)))
+       (ys (map (lambda (line) (list-ref line y-ind)) data)))
+  (map (lambda (column) (format #t "~8f " (mutual-information column ys)))
+       (transpose (map (c all-but y-ind) data)))
+  (newline))
