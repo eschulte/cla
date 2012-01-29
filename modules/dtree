@@ -1,7 +1,14 @@
-#!/usr/local/bin/guile \
---no-auto-compile -s
+#!/usr/local/bin/guile -s
 !#
-(use-modules (ice-9 rdelim) (ice-9 format) (srfi srfi-1))
+;;; Accepts training data on STDIN, optional argument specifies which
+;;; column is the classification, the rest are interpreted as
+;;; attributes.
+;;;        
+;;; $ cat training-data|dtree > /tmp/decider
+;;; $ chmod +x /tmp/decider
+;;; $ cat example-data|/tmp/decider
+;;; 
+(use-modules (ice-9 rdelim) (ice-9 pretty-print) (srfi srfi-1))
 (define-syntax c (syntax-rules () ((c f args ...) (lambda x (apply f args ... x)))))
 (define (all-but n l) (append (take l n) (drop l (+ n 1))))
 (define (transpose ls) (apply map list ls))
@@ -53,28 +60,22 @@
 (define (split-by-attribute a xs ys)
   (let ((values (delete-duplicates (map (lambda (row) (list-ref row a)) xs)))
         (both (map cons xs ys)))
-    (map (lambda (v) (filter (lambda (pair) (equal? v (list-ref (car pair) a))) both))
+    (map (lambda (v) (cons v (filter (lambda (pair) (equal? v (list-ref (car pair) a)))
+                                both)))
          values)))
 
 (define (build-decision-node xs ys)
   (let ((a (best-attribute xs ys)))
-    ;; `(case ,a
-    ;;    ,@(map (lambda (pair)
-    ;;             (list a (apply build-decision-tree pair)))
-    ;;           (split-by-attribute xs ys)))
-    (format #t "decision ~a~%" a)
-    (map (lambda (group) (build-decision-tree (map car group) (map cdr group)))
-         (split-by-attribute a xs ys))))
-
-(define (single-decision-node xs ys)
-  (let ((a (best-attribute xs ys)))
-    (format #t "decision ~a~%" a)
-    (map (lambda (pair) (cons (map car pair) (map cdr pair)))
-         (split-by-attribute a xs ys))))
+    `(case (list-ref row ,a)
+       ,@(map (lambda (group)
+                (list (list (car group))
+                      (build-decision-tree (map car (cdr group))
+                                           (map cdr (cdr group)))))
+              (split-by-attribute a xs ys)))))
 
 (define (build-decision-tree xs ys)
   (if (leaf-node? xs ys)
-      (majority ys)
+      (car (majority ys))
       (build-decision-node xs ys)))
 
 ;; parse incoming data
@@ -82,6 +83,12 @@
        (y-ind (if (> (length (command-line)) 1)
                   (eval-string (cadr (command-line)))
                   (- (length (car data)) 1)))
-       (ys (map (lambda (line) (list-ref line y-ind)) data))
+       (ys (map (lambda (line) (list (list-ref line y-ind))) data))
        (xs (map (c all-but y-ind) data)))
-  (format #t "~S~%" (build-decision-tree xs ys)))
+  (display "#!/usr/local/bin/guile -s") (newline)
+  (display "!#") (newline)
+  (display "(use-modules (ice-9 rdelim))") (newline)
+  (pretty-print `((lambda (row)
+                    (display ,(build-decision-tree xs ys))
+                    (newline))
+                  (read))))
