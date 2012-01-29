@@ -1,12 +1,15 @@
 #!/usr/local/bin/guile \
 --no-auto-compile -s
 !#
-(use-modules (ice-9 rdelim) (srfi srfi-1))
-
+(use-modules (ice-9 rdelim) (ice-9 format) (srfi srfi-1))
 (define-syntax c (syntax-rules () ((c f args ...) (lambda x (apply f args ... x)))))
-
+(define (all-but n l) (append (take l n) (drop l (+ n 1))))
+(define (transpose ls) (apply map list ls))
 (define reduce (lambda* (fn l #:optional (i '()))
                    (if (null? l) i (fn (car l) (reduce fn (cdr l) i)))))
+(define (cross as bs)
+  "Return the Cartesian product of as and bs."
+  (apply append (map (lambda (a) (map (c cons a) bs)) as)))
 
 (define (counts lst)
   (reduce (lambda (el acc)
@@ -18,13 +21,6 @@
 
 (define (majority lst)
   (caar (sort (counts lst) (lambda (a b) (> (cdr a) (cdr b))))))
-
-(define (best-attribute xs ys)
-  1)
-
-(define (cross as bs)
-  "Return the Cartesian product of as and bs."
-  (apply append (map (lambda (a) (map (c cons a) bs)) as)))
 
 (define (mutual-information xs ys)
   "Return the mutual information between corresponding observations xs and ys."
@@ -42,16 +38,39 @@
                 (- acc (if (> pxy 0) (* pxy (log (/ (* px py) pxy))) 0))))
             (cross (delete-duplicates xs) (delete-duplicates ys)) 0)))
 
+(define (best-attribute xs ys)
+  (let ((mis (map (c mutual-information ys) (transpose xs)))
+        (counter -1))
+    (cdar (sort (map (lambda (m) (set! counter (+ 1 counter)) (cons m counter)) mis)
+                (lambda (a b) (> (car a) (car b)))))))
+
 (define (leaf-node? xs ys)
-  (or (<= (length xs) 1)
-      (<= (length (counts ys)) 1)))
+  (or (<= (length (counts ys)) 1)
+      (let ((sx (transpose xs)))
+        (<= (reduce + (map length (map counts sx)) 0)
+            (length sx)))))
+
+(define (split-by-attribute a xs ys)
+  (let ((values (delete-duplicates (map (lambda (row) (list-ref row a)) xs)))
+        (both (map cons xs ys)))
+    (map (lambda (v) (filter (lambda (pair) (equal? v (list-ref (car pair) a))) both))
+         values)))
 
 (define (build-decision-node xs ys)
   (let ((a (best-attribute xs ys)))
-    `(case ,a
-       ,@(map (lambda (pair)
-                (list a (apply build-decision-tree pair)))
-              (split-by-attribute xs ys)))))
+    ;; `(case ,a
+    ;;    ,@(map (lambda (pair)
+    ;;             (list a (apply build-decision-tree pair)))
+    ;;           (split-by-attribute xs ys)))
+    (format #t "decision ~a~%" a)
+    (map (lambda (group) (build-decision-tree (map car group) (map cdr group)))
+         (split-by-attribute a xs ys))))
+
+(define (single-decision-node xs ys)
+  (let ((a (best-attribute xs ys)))
+    (format #t "decision ~a~%" a)
+    (map (lambda (pair) (cons (map car pair) (map cdr pair)))
+         (split-by-attribute a xs ys))))
 
 (define (build-decision-tree xs ys)
   (if (leaf-node? xs ys)
@@ -59,6 +78,10 @@
       (build-decision-node xs ys)))
 
 ;; parse incoming data
-;; (define *data* (read))
-(define *xs* (map (lambda (line) (reverse (cdr (reverse line)))) *data*))
-(define *ys* (map last-pair *data*))
+(let* ((data (read))
+       (y-ind (if (> (length (command-line)) 1)
+                  (eval-string (cadr (command-line)))
+                  (- (length (car data)) 1)))
+       (ys (map (lambda (line) (list-ref line y-ind)) data))
+       (xs (map (c all-but y-ind) data)))
+  (format #t "~S~%" (build-decision-tree xs ys)))
