@@ -1,12 +1,12 @@
 #!/usr/local/bin/guile \
 --no-auto-compile -s
 !#
-(use-modules (ice-9 rdelim)
-             (ice-9 format)
-             (srfi srfi-1))
+(use-modules (ice-9 rdelim) (srfi srfi-1))
 
-(define (reduce fn l)
-  (if (null? l) '() (fn (car l) (reduce fn (cdr l)))))
+(define-syntax c (syntax-rules () ((c f args ...) (lambda x (apply f args ... x)))))
+
+(define reduce (lambda* (fn l #:optional (i '()))
+                   (if (null? l) i (fn (car l) (reduce fn (cdr l) i)))))
 
 (define (counts lst)
   (reduce (lambda (el acc)
@@ -20,13 +20,31 @@
   (caar (sort (counts lst) (lambda (a b) (> (cdr a) (cdr b))))))
 
 (define (best-attribute xs ys)
-  '())
+  1)
 
-(define (leaf-node? ys)
-  '())
+(define (cross as bs)
+  "Return the Cartesian product of as and bs."
+  (apply append (map (lambda (a) (map (c cons a) bs)) as)))
 
-(define (build-leaf-node ys)
-  '())
+(define (mutual-information xs ys)
+  "Return the mutual information between corresponding observations xs and ys."
+  (let* ((both (map cons xs ys))
+         (total (length xs))
+         (perc (lambda (observations) (/ (length observations) total))))
+    (reduce (lambda (pair acc)
+              (let* ((x (car pair))
+                     (y (cdr pair))
+                     (px (perc (filter (c equal? x) xs)))
+                     (py (perc (filter (c equal? y) ys)))
+                     (pxy (perc (filter (lambda (pair) (and (equal? x (car pair))
+                                                       (equal? y (cdr pair))))
+                                        both))))
+                (- acc (if (> pxy 0) (* pxy (log (/ (* px py) pxy))) 0))))
+            (cross (delete-duplicates xs) (delete-duplicates ys)) 0)))
+
+(define (leaf-node? xs ys)
+  (or (<= (length xs) 1)
+      (<= (length (counts ys)) 1)))
 
 (define (build-decision-node xs ys)
   (let ((a (best-attribute xs ys)))
@@ -36,15 +54,11 @@
               (split-by-attribute xs ys)))))
 
 (define (build-decision-tree xs ys)
-  (if (leaf-node? ys)
-      (build-leaf-node ys)
+  (if (leaf-node? xs ys)
+      (majority ys)
       (build-decision-node xs ys)))
 
 ;; parse incoming data
-(define *data* (read))
+;; (define *data* (read))
 (define *xs* (map (lambda (line) (reverse (cdr (reverse line)))) *data*))
 (define *ys* (map last-pair *data*))
-
-(format #t "~d attributes in ~a~%" (length (car *xs*)) (car *xs*))
-
-
