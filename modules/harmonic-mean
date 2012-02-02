@@ -1,0 +1,10 @@
+#!/usr/bin/gawk -f
+# Harmonic Mean
+function max(x,y){ if(x > y) return x; else return y; }
+{
+    for (i=1; i<=max(NF, length(largest_diff)); i++){
+        if($i != 0) sum[i] += 1/$i;
+        if(i == 1){ line = NR/sum[i] }else{ line = line " " NR/sum[i] }
+    }
+    print line
+}
