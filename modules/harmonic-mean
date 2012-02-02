@@ -3,8 +3,14 @@
 function max(x,y){ if(x > y) return x; else return y; }
 {
     for (i=1; i<=max(NF, length(largest_diff)); i++){
-        if($i != 0) sum[i] += 1/$i;
-        if(i == 1){ line = NR/sum[i] }else{ line = line " " NR/sum[i] }
+        if($i){
+            sum[i] += 1/$i;
+            count[i]++; }
+        if(sum[i])
+            if(i == 1){
+                line = count[i]/sum[i] }
+            else{
+                line = line " " count[i]/sum[i] }
     }
     print line
 }
