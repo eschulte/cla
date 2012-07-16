@@ -9,7 +9,7 @@ int main(int argc, char *argv[]){
   if(argc > 1)
     fd = fopen(argv[1], "w+");
 
-  while(gets(buffer)){
+  while(fgets(buffer, MAX_LINE_SIZE, stdin)){
     // just in case the line was >MAX_LINE_SIZE
     buffer[MAX_LINE_SIZE] = 0;
 
