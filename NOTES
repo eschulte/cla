@@ -6,20 +6,20 @@
 :   Shell        CLA Frontend            Modules
 :  -------      --------------          ---------
 :                                      +----------+
-:                                  +-->|          |
+:                                  /---|          |
+:                                  |   +----------+
 :             +----------------+   |   +----------+
-:             |  Dispatch to   |   |   +----------+
-:  STDIN ---->|    modules     |---+-->|          |
+:             |  Dispatch to   |   +---|          |
+:  STDIN ---->|    modules     |-->|   +----------+
 :             +----------------+   |   +----------+
+:                                  +---|          |
 :             +----------------+   |   +----------+
-:             |  Collect and   |<--+-->|          |
-: STDOUT <----| present output |   |   +----------+
+: STDOUT <----|  Collect and   |<--|   +----------+
+:             | present output |   +---|          |
 :             +----------------+   |   +----------+
-:                                  +-->|          |
+:                                  |   +----------+
+:                                  \---|          |
 :                                      +----------+
-:                                           .
-:                                           .
-:                                           .
 
 * Notes and Tasks [2/3]
 ** DONE module interaction
@@ -70,3 +70,9 @@ Using shell escape codes.
 
 Using something like the above with =eval= should reduce the on-disk
 footprint letting =tee= duplicate the input across all processes.
+* Additional modules to implement [0/2]
+** TODO Mann-Whitney U-test
+[[http://scholar.google.com/scholar?as_q=&as_epq=A+practical+guide+for+using+statistical+tests+to+assess+randomized+algorithms+in+software+engineering&as_oq=&as_eq=&as_occt=title&as_sauthors=&as_publication=&as_ylo=&as_yhi=&btnG=&hl=en&as_sdt=0%2C32][A practical guide for using statistical tests to assess randomized algorithms in software engineering]]
+
+** TODO Fisher's Exact test
+[[http://scholar.google.com/scholar?as_q=&as_epq=A+practical+guide+for+using+statistical+tests+to+assess+randomized+algorithms+in+software+engineering&as_oq=&as_eq=&as_occt=title&as_sauthors=&as_publication=&as_ylo=&as_yhi=&btnG=&hl=en&as_sdt=0%2C32][A practical guide for using statistical tests to assess randomized algorithms in software engineering]]
