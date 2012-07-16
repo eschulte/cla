@@ -65,6 +65,11 @@ accumulate no-configuration analytic tools usable from the command
 line.  The value of cla will be directly proportional to the number
 and quality of included modules, so please contribute!
 
+Look in the
+[modules](https://github.com/eschulte/cla/tree/master/modules)
+directory to see a list of existing modules with brief descriptions of
+their functionality.
+
 ### License
 Licensed under the GPLV3, see the COPYING file in this directory for
 more information.
