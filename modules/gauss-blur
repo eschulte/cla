@@ -1,0 +1,20 @@
+#!/usr/bin/gawk -f
+# Gaussian Blur
+BEGIN{
+    kernel[-3] = 0.006;
+    kernel[-2] = 0.061;
+    kernel[-1] = 0.242;
+    kernel[0]  = 0.383;
+    kernel[1]  = 0.242;
+    kernel[2]  = 0.061;
+    kernel[3]  = 0.006;
+}
+
+function add(value,place){ for(j=-3; j<=3; j++){ blurred[(place + j)] += (value * kernel[j]) } }
+
+{
+    add($1, NR);
+    print blurred[NR-3]
+}
+
+END{ for(i=-2;i<=3;i++){ print blurred[NR+i] } }
