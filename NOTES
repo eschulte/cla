@@ -21,7 +21,10 @@
 :                                  \---|          |
 :                                      +----------+
 
-* Notes and Tasks [2/3]
+* Notes and Tasks [2/4]
+** TODO fix up the sine test script
+so doesn't give weird results
+
 ** DONE module interaction
 The module interaction should be simple and done through Unix pipes.
 - data may be presented to modules STDIN
