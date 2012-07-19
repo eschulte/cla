@@ -40,10 +40,10 @@ To check that everything is working properly pipe data (for example
 from the `./test/sine` script in this directory) into `cla`.
 
     $ ./test/sine|cla min max mean stdev
-    min     .00999983333416666468
-    max     .84147098480789650665
-    mean    0.463901
-    stdev   0.247021
+    min     -.99999714638771796842
+    max     .99999968293183462021
+    mean    -1.72551e-06
+    stdev   0.499458
 
 ### A word on Modules
 "Modules" are simply commands which accept data on `STDIN` and print
