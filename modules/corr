@@ -1,22 +1,9 @@
-#!/usr/bin/awk -f
-# Pearson's correlation
-{
-    if(NF>1){ a=$1; b=$2 }else{ a=NR; b=$1 }
-    sum_a=sum_a+a
-    records_a[NR]=a
-    sum_b=sum_b+b
-    records_b[NR]=b
-    sum_prod=sum_prod+(a*b)
-    # } END { <- to only print the final STDEV
-    # difference between mean of products and product of means
-    cov=((sum_prod/NR) - ((sum_a/NR) * (sum_b/NR)))
-    mean_a=sum_a/NR
-    mean_b=sum_b/NR
-    sum_of_squares_a=0
-    for(x=1;x<=NR;x++){ sum_of_squares_a+=((records_a[x]-mean_a)^2); }
-    sum_of_squares_b=0
-    for(x=1;x<=NR;x++){ sum_of_squares_b+=((records_b[x]-mean_b)^2); }
-    stdev_a=sqrt(sum_of_squares_a/NR)
-    stdev_b=sqrt(sum_of_squares_b/NR)
-    if((stdev_a*stdev_b) != 0) print (cov/(stdev_a*stdev_b))
-}
+#!/usr/bin/Rscript --vanilla
+# -*- R -*-
+# 
+# Correlation
+d <- read.table("stdin", header=FALSE, as.is=TRUE, fill=TRUE);
+x <- as.vector(d[1]); col1 <- x[!is.na(x)];
+y <- as.vector(d[2]); col2 <- y[!is.na(y)];
+
+x
