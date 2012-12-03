@@ -1,0 +1,12 @@
+#!/usr/bin/gawk -f
+# Geometric Mean
+# exp(mean(log( values )))
+{
+    for (i=1; i<=NF; i++)
+    {
+        if($i ~ /[0-9.]/){sum[i] += log($i); count[i]++}
+        if(i == 1){ line = exp(sum[i]/count[i]) }
+        else{       line = line " " exp(sum[i]/count[i])}
+    }
+    print line
+}
