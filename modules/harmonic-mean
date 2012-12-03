@@ -1,16 +1,12 @@
 #!/usr/bin/gawk -f
 # Harmonic Mean
-function max(x,y){ if(x > y) return x; else return y; }
+# reciprocal of the arithmetic mean of the reciprocals
 {
-    for (i=1; i<=max(NF, length(largest_diff)); i++){
-        if($i){
-            sum[i] += 1/$i;
-            count[i]++; }
-        if(sum[i])
-            if(i == 1){
-                line = count[i]/sum[i] }
-            else{
-                line = line " " count[i]/sum[i] }
+    for (i=1; i<=NF; i++)
+    {
+        if($i ~ /[0-9.]/){sum[i] += 1/$i; count[i]++}
+        if(i == 1){ line = count[i]/sum[i] }
+        else{       line = line " " count[i]/sum[i]}
     }
     print line
 }
