@@ -6,4 +6,4 @@ d <- read.table("stdin", header=FALSE, as.is=TRUE, fill=TRUE);
 x <- as.vector(d[1]); col1 <- x[!is.na(x)];
 y <- as.vector(d[2]); col2 <- y[!is.na(y)];
 
-x
+cor.test(col1,col2)
